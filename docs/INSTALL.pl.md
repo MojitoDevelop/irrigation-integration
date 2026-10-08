@@ -29,7 +29,7 @@ Karta jest normalnie rejestrowana automatycznie. Jeśli po powyższych krokach j
    type: module
    ```
 
-   W edytorze zasobów wybierz typ **JavaScript Module**. Ten sam wpis jest w `resource.yaml`. Odśwież przeglądarkę ponownie. Przy kolejnych aktualizacjach zmień numer wersji również w tym ręcznym zasobie.
+   W edytorze zasobów wybierz typ **JavaScript Module**. Ten sam wpis jest w `examples/resource.yaml`. Odśwież przeglądarkę ponownie. Przy kolejnych aktualizacjach zmień numer wersji również w tym ręcznym zasobie.
 
 Jeżeli starsza karta nie jest używana na żadnym dashboardzie, usuń jej stary zasób z `/local/...`, aby nie ładować go dalej. Nie trzeba usuwać zapisanych harmonogramów.
 
@@ -50,7 +50,7 @@ Karta i formularze obsługują PL/EN/DE. Nowe encje tworzone są po angielsku; i
 - Przyciski zaworów mają kompaktowy, jednoliniowy układ i znacznik stanu. Liczba kolumn dostosowuje się do szerokości karty.
 - Zwiększony numer wersji zasobu JS pozwala przeglądarce pobrać poprawiony plik.
 
-HACS i publikacja GitHub są na razie odłożone. [Pełna instrukcja](README.md) i [plan testów](docs/TEST_PLAN.md) opisują działanie i próby na zaworach.
+[Opis integracji](README.pl.md) i przykłady YAML w katalogu `examples/` pomagają skonfigurować kartę i harmonogramy.
 
 ## Cache na Androidzie
 

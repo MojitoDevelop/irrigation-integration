@@ -7,6 +7,8 @@
 - Empty valve selection on new installation; existing options preserve configured valves.
 - Localized standalone navigation button-card, shared runtime dictionaries and English fallback.
 - Repository metadata for MojitoDevelop/irrigation-integration, English README, Polish documentation and release artifacts.
+- Simplified English/Polish README and repository layout: documentation/screenshots in `docs/`, YAML in `examples/`, build tools in `scripts/`.
+- Development tests, fixtures, previews and test dependencies are maintained separately; public CI retains release preflight, Hassfest and HACS validation.
 - Patched test-only YAML parser; retained event-driven frontend updates with no periodic polling.
 
 ## 0.1.3 — powiadomienia zamiast odpytywania

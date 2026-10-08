@@ -60,17 +60,17 @@ def check(root, repository=None, version=None):
     codeowners = (root / '.github/CODEOWNERS').read_text(encoding='utf-8')
     if owners and not all(o in codeowners for o in owners):
         errors.append('CODEOWNERS does not match the manifest.')
-    for relative in ['LICENSE', 'README.md', 'CHANGELOG.md', 'docs/TEST_PLAN.md', 'docs/PUBLISHING.md',
+    for relative in ['LICENSE', 'README.md', 'CHANGELOG.md', 'docs/PUBLISHING.md',
                      f'docs/RELEASE_NOTES_{manifest.get("version")}.md', '.github/workflows/validate.yml', '.github/workflows/package.yml']:
         if not (root / relative).is_file():
             errors.append(f'Missing release file: {relative}.')
-    spec = importlib.util.spec_from_file_location('irrigation_card_builder', root / 'build.py')
+    spec = importlib.util.spec_from_file_location('irrigation_card_builder', root / 'scripts/build.py')
     builder = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(builder)
     if builder.bundle(root) != (integration / 'frontend/irrigation-schedule-card.js').read_text(encoding='utf-8'):
-        errors.append('Card bundle is outdated; run python3 build.py.')
-    if builder.navigation(root) != (root / 'navigation-card.yaml').read_text(encoding='utf-8'):
-        errors.append('Navigation YAML is outdated; run python3 build.py.')
+        errors.append('Card bundle is outdated; run python3 scripts/build.py.')
+    if builder.navigation(root) != (root / 'examples/navigation-card.yaml').read_text(encoding='utf-8'):
+        errors.append('Navigation YAML is outdated; run python3 scripts/build.py.')
     locales = {language: json.loads((integration / 'locales' / (language + '.json')).read_text(encoding='utf-8')) for language in ('en', 'pl', 'de')}
     for language, data in locales.items():
         if data.keys() != locales['en'].keys():

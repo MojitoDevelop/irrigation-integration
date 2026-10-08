@@ -24,7 +24,7 @@ An older manual resource must use the current version query. Do not point it at 
 
 English, Polish and German are selected by HA language, with an English fallback. Omit an explicit `title` from card YAML for a translated heading. Names supplied by users stay unchanged.
 
-Fresh installations create `switch.irrigation_automation` and `sensor.irrigation_status`; legacy registered IDs stay unchanged during an update. The main card detects actual IDs. In `navigation-card.yaml`, set `entity` to the existing status sensor if it still has a legacy Polish ID.
+Fresh installations create `switch.irrigation_automation` and `sensor.irrigation_status`; legacy registered IDs stay unchanged during an update. The main card detects actual IDs. In `examples/navigation-card.yaml`, set `entity` to the existing status sensor if it still has a legacy Polish ID.
 
 Preserve native Schedule helpers when updating. Both `schedule.irrigation_*` and legacy `schedule.nawodnienie_*` are supported. Disable any previous Node-RED/YAML controller before using this integration.
 
@@ -36,4 +36,4 @@ Preserve native Schedule helpers when updating. Both `schedule.irrigation_*` and
 
 The app and Chrome have independent caches. Test the JavaScript URL above using the HA address configured on the affected phone.
 
-[Polska instrukcja](INSTALL.pl.md) · [README](README.md) · [Test plan](docs/TEST_PLAN.md)
+[Polska instrukcja](INSTALL.pl.md) · [README](../README.md)

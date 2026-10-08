@@ -9,12 +9,12 @@ from package_release import archive, files
 ROOT = Path(__file__).resolve().parents[1]
 manifest = json.loads((ROOT / 'custom_components/irrigation_schedule/manifest.json').read_text(encoding='utf-8'))
 version = manifest['version']
-spec = importlib.util.spec_from_file_location('irrigation_card_builder', ROOT / 'build.py')
+spec = importlib.util.spec_from_file_location('irrigation_card_builder', ROOT / 'scripts/build.py')
 builder = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(builder)
 bundle_path = ROOT / 'custom_components/irrigation_schedule/frontend/irrigation-schedule-card.js'
 if bundle_path.read_text(encoding='utf-8') != builder.bundle(ROOT):
-    raise SystemExit('Outdated card bundle; run python3 build.py first.')
+    raise SystemExit('Outdated card bundle; run python3 scripts/build.py first.')
 for path in (ROOT / 'custom_components/irrigation_schedule').glob('*.py'):
     compile(path.read_text(encoding='utf-8'), str(path), 'exec')
 output = ROOT.parent / f'irrigation-integration-{version}.zip'

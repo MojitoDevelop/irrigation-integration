@@ -18,17 +18,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
       - name: Validate release metadata and source bundle
         run: python scripts/check_release.py --repository "$GITHUB_REPOSITORY"
-      - name: Test backend model
-        run: python test-model.py
-      - name: Test schedule model and exact card payloads
-        run: node test-card-model.mjs
-      - name: Test release preparation and packaging
-        run: python test-release.py
 
   hassfest:
     runs-on: ubuntu-latest

@@ -33,16 +33,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parents[1]
     output = root / 'custom_components/irrigation_schedule/frontend/irrigation-schedule-card.js'
     resource = bundle(root)
     navigation_resource = navigation(root)
-    navigation_output = root / 'navigation-card.yaml'
+    navigation_output = root / 'examples/navigation-card.yaml'
     if args.check:
         if output.read_text(encoding='utf-8') != resource:
-            parser.exit(1, 'Card bundle is outdated; run python3 build.py\n')
+            parser.exit(1, 'Card bundle is outdated; run python3 scripts/build.py\n')
         if navigation_output.read_text(encoding='utf-8') != navigation_resource:
-            parser.exit(1, 'Navigation YAML is outdated; run python3 build.py\n')
+            parser.exit(1, 'Navigation YAML is outdated; run python3 scripts/build.py\n')
         print('PASS committed card bundle and navigation YAML match their sources')
     else:
         output.write_text(resource, encoding='utf-8')

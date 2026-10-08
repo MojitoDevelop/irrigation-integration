@@ -1,51 +1,41 @@
 # Irrigation for Home Assistant
 
-A custom integration with a dashboard card for weekly irrigation schedules, overlapping valve control, manual operation and live status. The controller runs on the Home Assistant server, including when every browser and app is closed.
+Control irrigation valves with weekly schedules and a dashboard card. Everything runs in Home Assistant, even when the dashboard or app is closed. No Node-RED required.
 
-**Version 0.2.0.** Supports Home Assistant **2026.10.0 or newer**; 2026.10.0 is the tested runtime. English, Polish and German interfaces. [Polska dokumentacja](README.pl.md).
+**Version:** 0.2.0 · **Home Assistant:** 2026.10.0 or newer · **Languages:** English, Polish, German
 
-![Irrigation dashboard](preview-light.png)
+[Polska wersja](docs/README.pl.md)
+
+![Irrigation dashboard](docs/images/preview-light.png)
+
+## Features
+
+- Create, name, edit and delete schedules directly in the card.
+- Select weekdays, a time window and valves for each schedule. Editing updates the entire schedule.
+- Overlapping schedules can share valves. A valve stays open while any active schedule needs it.
+- Support for time windows crossing midnight.
+- Automation switch, manual valve controls and live status.
+- Interface language follows Home Assistant. Your schedule and valve names stay unchanged.
 
 ## Installation
 
-Copy `custom_components/irrigation_schedule` into `/config/custom_components/irrigation_schedule`, restart Home Assistant, then add **Irrigation** in **Settings → Devices & services**. Select the valve `switch` entities and enter their display names. A new installation starts with **no valves selected**; at least one valve is required. Options for an existing installation retain its configured valves.
+**HACS:** add `https://github.com/MojitoDevelop/irrigation-integration` as a custom repository with category **Integration**, then install **Irrigation**.
 
-Once the repository has been published, it can also be added as a HACS custom repository:
+**Manual:** copy `custom_components/irrigation_schedule` to `/config/custom_components/irrigation_schedule`.
 
-- Repository: `https://github.com/MojitoDevelop/irrigation-integration`
-- Category: **Integration**
+Restart Home Assistant, then go to **Settings → Devices & services → Add integration → Irrigation**. Select your valve `switch` entities and enter their display names. No valves are selected by default. You can change the valve list later in the integration options.
 
-Restart HA after installation or an update. This repository is not automatically part of the HACS default catalogue.
-
-Add the dashboard card:
+## Dashboard card
 
 ```yaml
 type: custom:irrigation-schedule-integration-card
 ```
 
-The integration serves and registers the card automatically. Its files do not need to be copied to `www`. [Installation and troubleshooting](INSTALL.md).
+The card is registered automatically. Click **Add schedule**, enter a name, select weekdays, times and valves, then save.
 
-## Languages and default names
+Enable **Irrigation automation** to run schedules. Turning it off closes the valves and shows manual controls once closure is confirmed.
 
-The card follows the current HA user's language; configuration and options forms use HA's native translations. English, Polish and German are supported, with English as the fallback. The textual sensor uses the HA server language. Structured status attributes allow the main card and navigation card to display that status in the current user's language.
-
-Custom schedule/valve names and an explicit YAML `title` are preserved as supplied. Omit `title` for a translated heading. Changing the interface language does not rewrite schedules or valve assignments.
-
-New integration entities use English default names and IDs:
-
-| Entity | Default name | Purpose |
-| --- | --- | --- |
-| `switch.irrigation_automation` | Irrigation automation | Enable or disable automatic control |
-| `sensor.irrigation_status` | Irrigation status | Current activity and diagnostics |
-| `schedule.irrigation_*` | Irrigation … | Native weekly Schedule helpers created by the card |
-
-Existing registry IDs from older versions, including `switch.nawodnienie_automatyka`, `sensor.nawodnienie_integracja_status` and `schedule.nawodnienie_*`, are retained and supported. The main card discovers the actual integration entity IDs. External valve entities are never renamed.
-
-## Valve configuration
-
-Use the integration's options to add/remove valves and change their display names. Assignments are stored by entity ID, so renaming or reordering valves does not change watering assignments.
-
-Optional card YAML can configure valves too:
+You can also supply the valve list in the card YAML. When an administrator loads the card, this list is saved in the integration:
 
 ```yaml
 type: custom:irrigation-schedule-integration-card
@@ -56,55 +46,15 @@ valves:
     name: Flower beds
 ```
 
-An administrator's first card load persists an explicit YAML list into the integration. Loading another card with a different explicit list may apply that list. For a single source of truth, use integration options and omit `valves` from the card. [Original 12-valve example](card-with-valves.yaml).
+[Navigation card](examples/navigation-card.yaml) uses `custom:button-card` to show an icon, name and status and open `/irrigation`. It requires button-card to be installed.
 
-Removed valves are retained internally until the controller can confirm they are closed. Re-adding an entity returns it to the active catalogue.
+## Entities and updates
 
-## Scheduling and operation
+| Default entity | Purpose |
+| --- | --- |
+| `switch.irrigation_automation` | Enable or disable automatic irrigation |
+| `sensor.irrigation_status` | Current activity and errors |
 
-- One card entry owns a complete native Schedule helper: name, selected start days, time window and valves. Editing replaces the entire logical schedule across all selected days. Adding and deleting helpers is available in the card.
-- Overlapping schedules request the union of their valves. A valve stays open while any active schedule requires it.
-- Overnight windows continue into the next day. Selected weekdays are start days. HA interprets times using its configured time zone.
-- Disabling automation closes controlled valves before allowing manual control. Manual controls are hidden while automation is enabled. In manual mode the controller preserves manually selected states.
-- The controller responds to HA events, with a five-second server fallback check. The frontend has no periodic polling timer: schedule changes use HA collection notifications; state updates change only the relevant display elements.
-- The controller confirms switch states, retries failed commands, and reevaluates the latest intent before each command. Disabling automation during an operation prevents subsequent planned opens.
-- After restart, enabled automation applies the current schedules. With automation disabled, the controller confirms closure before releasing manual control. Manual open states are not restored as schedules.
+Schedules use native HA Schedule helpers. Existing entity IDs and schedules are preserved during updates. Replace the integration files, restart HA and refresh the frontend cache. Disable any previous controller using the same valves.
 
-The controller requires a running HA server and available devices. Switch-state confirmation is not a physical measurement of water flow. Valve behaviour during power or connection loss depends on the devices.
-
-## Dashboard
-
-The main card has a transparent background and a fixed, non-collapsible heading. The schedule form opens with **Add schedule** and closes with **Cancel**. Default times are **12:00–13:00**. Creating schedules, configuring valves and manual control require an HA administrator account.
-
-[Navigation card YAML](navigation-card.yaml) uses only `custom:button-card`, with an icon, translated name and status. It navigates to `/irrigation`. Set `entity` to the actual status sensor if updating an older installation, and adjust `variables.navigation_path` if necessary. This separate card requires button-card to be installed. Its translated templates are evaluated when the card is loaded or its tracked state updates; reload the dashboard after changing the profile language if necessary.
-
-## Updating older installations
-
-Replace the integration folder, restart HA and refresh the frontend cache. Existing unique IDs, valve configuration and Schedule helpers are preserved. The card continues to recognise legacy Polish helper names and entity prefixes, as well as v1 numerical assignments to the original `switch.nawodnienie_strefa_N` entities.
-
-Disable any earlier Node-RED flow or YAML irrigation controller before using this integration. Preserve your Schedule helpers. The integration does not import arbitrary flow formats. Invalid helpers are labelled **Error** for correction or deletion; old catalogue helpers are ignored by the controller.
-
-## Validation and development
-
-Local validation covers a real HA 2026.10.0 runtime with simulated switch valves, configuration/options flows, Schedule CRUD and push notifications, restart, legacy entity IDs, unload, unavailable valves, command failures and overlapping schedules. Browser tests cover all three languages, language changes during editing, accessibility labels, complete schedule updates, manual operation and 95 seconds of idle time with zero API calls or DOM changes. Physical-device checks remain the maintainer's responsibility before a stable release. [Test plan](docs/TEST_PLAN.md).
-
-```sh
-npm ci
-npx playwright install chromium
-python3 test-model.py
-npm test
-npm run test:browser
-python3 test-release.py
-python3 build.py --check
-python3 scripts/check_release.py --repository MojitoDevelop/irrigation-integration --version 0.2.0
-```
-
-`test-integration.py` requires Python 3.14 with HA 2026.10.0, frontend requirements and local network sockets. `test-navigation.cjs` also requires an official button-card JavaScript file specified with `IRRIGATION_BUTTON_CARD`. That dependency is not distributed in this repository.
-
-Edit card code in `card-source`; edit shared display strings in `custom_components/irrigation_schedule/locales/{en,pl,de}.json`. Native HA translations are in `translations/{en,pl,de}.json`, with English `strings.json`. Run `python3 build.py` after changes: it regenerates the single-file card and translated navigation YAML. The server loads locale files through an executor at startup.
-
-GitHub Actions validate source, browser behaviour, Hassfest and HACS metadata. [Publication checklist](docs/PUBLISHING.md), [release notes](docs/RELEASE_NOTES_0.2.0.md), [changelog](CHANGELOG.md).
-
-## License
-
-[MIT](LICENSE), including the bundled brand graphics. Icon source: [docs/assets/icon.svg](docs/assets/icon.svg).
+[Installation and troubleshooting](docs/INSTALL.md) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/MojitoDevelop/irrigation-integration/issues) · [MIT license](LICENSE)
