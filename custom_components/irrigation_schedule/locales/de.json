@@ -137,5 +137,14 @@
     "Fr",
     "Sa",
     "So"
-  ]
+  ],
+  "error_enabled": "Die Planaktivität muss true oder false sein.",
+  "schedule_inactive": "Inaktiv",
+  "schedule_activity": "Planaktivität: {name}",
+  "activate_schedule": "Zeitplan {name} aktivieren",
+  "deactivate_schedule": "Zeitplan {name} deaktivieren",
+  "saving_activity": "Planaktivität wird gespeichert…",
+  "schedule_activated": "Zeitplan aktiviert.",
+  "schedule_deactivated": "Zeitplan deaktiviert.",
+  "error_activity": "Die Planaktivität konnte nicht geändert werden."
 }

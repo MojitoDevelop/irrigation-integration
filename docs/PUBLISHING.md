@@ -8,7 +8,7 @@ Keep the repository public with Issues enabled and topics such as `home-assistan
 
 ```sh
 python3 scripts/build.py --check
-python3 scripts/check_release.py --repository MojitoDevelop/irrigation-integration --version 0.2.0
+python3 scripts/check_release.py --repository MojitoDevelop/irrigation-integration --version 0.3.0
 python3 scripts/package_release.py
 ```
 
@@ -17,8 +17,8 @@ The package script produces manual-install and repository archives with `dist/SH
 ## Publish a release
 
 1. Confirm that GitHub Actions **Validate** passes release preflight, Hassfest and HACS checks. Confirm operation on your HA installation and valves.
-2. Create a GitHub Release with tag **`v0.2.0`** at the verified commit. Use [release notes](RELEASE_NOTES_0.2.0.md) as the description.
-3. Attach `irrigation-schedule-0.2.0.zip`, `irrigation-schedule-repository-0.2.0.zip` and `SHA256SUMS`. Use a prerelease while device testing is ongoing.
+2. Create a GitHub Release with tag **`v0.3.0`** at the verified commit. Use [release notes](RELEASE_NOTES_0.3.0.md) as the description.
+3. Attach `irrigation-schedule-0.3.0.zip`, `irrigation-schedule-repository-0.3.0.zip` and `SHA256SUMS`. Use a prerelease while device testing is ongoing.
 4. Verify installation and update through HACS as a custom repository, category **Integration**.
 
 The **Prepare release artifacts** workflow can generate these archives from a selected version. It does not publish a release.

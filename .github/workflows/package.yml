@@ -6,7 +6,7 @@ on:
       version:
         description: Version matching manifest.json and const.py (without v)
         required: true
-        default: "0.2.0"
+        default: "0.3.0"
         type: string
 
 permissions:

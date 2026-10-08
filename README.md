@@ -2,7 +2,7 @@
 
 Control irrigation valves with weekly schedules and a dashboard card. Everything runs in Home Assistant, even when the dashboard or app is closed. No Node-RED required.
 
-**Version:** 0.2.0 · **Home Assistant:** 2026.10.0 or newer · **Languages:** English, Polish, German
+**Version:** 0.3.0 · **Home Assistant:** 2026.10.0 or newer · **Languages:** English, Polish, German
 
 [Polska wersja](docs/README.pl.md)
 
@@ -11,6 +11,7 @@ Control irrigation valves with weekly schedules and a dashboard card. Everything
 ## Features
 
 - Create, name, edit and delete schedules directly in the card.
+- Activate or deactivate each schedule without deleting its days, times or valves.
 - Select weekdays, a time window and valves for each schedule. Editing updates the entire schedule.
 - Overlapping schedules can share valves. A valve stays open while any active schedule needs it.
 - Support for time windows crossing midnight.

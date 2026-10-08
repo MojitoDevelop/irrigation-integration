@@ -137,5 +137,14 @@
     "Pt",
     "So",
     "Nd"
-  ]
+  ],
+  "error_enabled": "Aktywność harmonogramu musi mieć wartość true albo false.",
+  "schedule_inactive": "Nieaktywny",
+  "schedule_activity": "Aktywność harmonogramu: {name}",
+  "activate_schedule": "Aktywuj harmonogram {name}",
+  "deactivate_schedule": "Dezaktywuj harmonogram {name}",
+  "saving_activity": "Zapisywanie aktywności harmonogramu…",
+  "schedule_activated": "Harmonogram aktywowany.",
+  "schedule_deactivated": "Harmonogram dezaktywowany.",
+  "error_activity": "Nie udało się zmienić aktywności harmonogramu."
 }

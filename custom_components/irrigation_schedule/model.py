@@ -88,13 +88,15 @@ def make_plan(states: Mapping[str, Any], valves: list[dict[str, str]], retired: 
         if 'irrigation_catalog' in data:
             continue  # Previous package's technical helper does not water anything.
         title = str(data.get('friendly_name', entity_id)).removeprefix('Irrigation ').removeprefix('Nawodnienie ')
+        entry = parse_json(data.get('irrigation_entry'), {})
+        if isinstance(entry, dict) and entry.get('enabled') is False:
+            continue
         if state.state not in ('on', 'off'):
             issue('issue_schedule', title)
             continue
         if state.state != 'on':
             continue
-        entry = parse_json(data.get('irrigation_entry'), {})
-        valid = isinstance(entry, dict)
+        valid = isinstance(entry, dict) and type(entry.get('enabled', True)) is bool
         zones = entry.get('zones') if valid else None
         valid = valid and type(entry.get('version')) is int and isinstance(zones, list) and bool(zones)
         ids = []

@@ -137,5 +137,14 @@
     "Fri",
     "Sat",
     "Sun"
-  ]
+  ],
+  "error_enabled": "Schedule activity must be true or false.",
+  "schedule_inactive": "Inactive",
+  "schedule_activity": "Schedule activity: {name}",
+  "activate_schedule": "Activate schedule {name}",
+  "deactivate_schedule": "Deactivate schedule {name}",
+  "saving_activity": "Saving schedule activity…",
+  "schedule_activated": "Schedule activated.",
+  "schedule_deactivated": "Schedule deactivated.",
+  "error_activity": "Could not change schedule activity."
 }

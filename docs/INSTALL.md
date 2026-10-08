@@ -1,4 +1,4 @@
-# Installation and update — 0.2.0
+# Installation and update — 0.3.0
 
 1. Extract the archive and copy **`custom_components/irrigation_schedule`** into **`/config/custom_components/irrigation_schedule`**, replacing the old integration folder.
 2. Restart Home Assistant.
@@ -11,10 +11,10 @@ type: custom:irrigation-schedule-integration-card
 
 The old `custom:irrigation-schedule-card` belongs to the earlier flow/package version. Remove old resources for that card from active dashboard use.
 
-The integration automatically registers its JavaScript. If the new card is missing, open `/irrigation_schedule/irrigation-schedule-card.js?v=0.2.0` on your HA server and check it returns JavaScript starting with `const INTEGRATION_CARD_VERSION = "0.2.0";`. If necessary, add this dashboard resource manually:
+The integration automatically registers its JavaScript. If the new card is missing, open `/irrigation_schedule/irrigation-schedule-card.js?v=0.3.0` on your HA server and check it returns JavaScript starting with `const INTEGRATION_CARD_VERSION = "0.3.0";`. If necessary, add this dashboard resource manually:
 
 ```yaml
-url: /irrigation_schedule/irrigation-schedule-card.js?v=0.2.0
+url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.0
 type: module
 ```
 
@@ -37,3 +37,7 @@ Preserve native Schedule helpers when updating. Both `schedule.irrigation_*` and
 The app and Chrome have independent caches. Test the JavaScript URL above using the HA address configured on the affected phone.
 
 [Polska instrukcja](INSTALL.pl.md) · [README](../README.md)
+
+## Schedule activity
+
+Each saved schedule has an activity switch in the card. Turning it off preserves its days, times and valves, while excluding it from irrigation control. The setting survives HA restarts. Existing schedules are active by default.

@@ -19,6 +19,7 @@ const CSS = `
  .days button{padding:10px 0}.zones button{padding:10px 6px;overflow-wrap:anywhere}.actions button{font-size:12px}.danger{color:var(--error-color,#d96276)}.wide{width:100%}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px}.toolbar label{margin:0}.toolbar button{padding:8px 12px}
  .hint,.message{font-size:11px;color:var(--secondary-text-color);line-height:1.5}.message{overflow-wrap:anywhere;min-height:17px}.message.error{color:var(--error-color,#d96276)}
  .editing{font-size:12px;color:var(--ir-green);margin-bottom:10px}.section-line{border-top:1px solid var(--ir-line);padding-top:14px}.entries{display:flex;flex-direction:column;gap:8px}.schedule-toolbar{margin-bottom:12px}.schedule-toolbar .caption{margin-bottom:0}
+ .entry-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:center}.entry.inactive{color:var(--secondary-text-color)}.schedule-toggle{display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:transparent}.toggle-track{display:block;position:relative;width:36px;height:20px;border-radius:12px;background:var(--ir-field);border:1px solid var(--ir-line)}.toggle-thumb{display:block;position:absolute;width:14px;height:14px;top:2px;left:2px;border-radius:50%;background:var(--secondary-text-color)}.schedule-toggle[aria-checked=true] .toggle-track{background:var(--ir-green-soft);border-color:var(--ir-green-line)}.schedule-toggle[aria-checked=true] .toggle-thumb{transform:translateX(16px);background:var(--ir-green)}
  .entry{width:100%;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:12px;gap:6px;border:1px solid var(--ir-line);border-radius:12px;background:var(--ir-field)}
  .entry.selected{border-color:var(--ir-green-line)}.entry-title{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;font-weight:500}.entry small{font-size:11px;color:var(--secondary-text-color);line-height:1.5}.entry.active .badge{background:var(--ir-green-soft);color:var(--ir-green)}
  .track{height:10px;border-radius:7px;background:var(--ir-field);position:relative;overflow:hidden}.range{position:absolute;top:0;height:100%;background:var(--ir-green);opacity:.65}.ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--secondary-text-color);margin-top:6px}
@@ -211,7 +212,7 @@ class IrrigationIntegrationCard extends ElementBase {
     let rule;
     try {
       if (!remove && [...this._zones].some(id=>!this._valves.some(v=>v.entity===id))) throw new ScheduleError('error_choose_catalog');
-      if (!remove) rule = normalizeRule({ id: editing?.entry.rule.id || crypto.randomUUID().replaceAll('-', '').slice(0, 16), title: this._title, days: [...this._days], zones: [...this._zones], from: this._from, to: this._to });
+      if (!remove) rule = normalizeRule({ id: editing?.entry.rule.id || crypto.randomUUID().replaceAll('-', '').slice(0, 16), title: this._title, enabled: editing?.entry.rule.enabled ?? true, days: [...this._days], zones: [...this._zones], from: this._from, to: this._to });
     } catch (e) { this._message = this._errorMessage(e, 'error_save'); this._error = true; this._renderMessage(); return; }
     this._busy = true; this._message = this._msg(remove ? 'deleting' : 'saving'); this._error = false; this._controls(); this._renderMessage();
     try {
@@ -237,6 +238,34 @@ class IrrigationIntegrationCard extends ElementBase {
       this._render();
     } catch (e) { this._message = this._errorMessage(e, 'error_save'); this._error = true; this._renderMessage(); }
     finally { this._busy = false; this._controls(); this._flushQueuedRefresh(); }
+  }
+  async _toggleSchedule(id) {
+    if (this._busy || !this._ready || !this._catalogReady || !this._hass.user?.is_admin) return;
+    const original = this._entries.find(entry => entry.schedule.id === id);
+    if (!original || original.error || !original.entry?.rule) return;
+    this._busy = true; this._message = this._msg('saving_activity'); this._error = false; this._controls(); this._renderMessage();
+    try {
+      await this._refreshPromise;
+      const current = (await this._read()).find(entry => entry.schedule.id === id);
+      if (!current || current.error || current.fingerprint !== original.fingerprint || current.schedule.name !== original.schedule.name) throw new ScheduleError('error_stale_schedule');
+      const enabled = !current.entry.rule.enabled;
+      const rule = { ...current.entry.rule, enabled };
+      if (enabled && rule.zones.some(id => !this._valves.some(valve => valve.entity === id))) throw new ScheduleError('error_choose_catalog');
+      const payload = updateWeek(current.schedule, {operation:'replace', id:rule.id, fingerprint:current.entry.fingerprint, rule});
+      // Only activity changes: preserve the helper name, ID, times, days and valves.
+      await this._ws(payload);
+      const updated = { ...current, schedule: {...current.schedule, ...payload} };
+      updated.entry = listEntries(updated.schedule)[0];
+      updated.fingerprint = weekFingerprint(updated.schedule);
+      this._entries = this._entries.map(entry => entry.schedule.id === id ? updated : entry);
+      if (this._editing?.schedule.id === id) this._editing = structuredClone(updated);
+      this._message = this._msg(enabled ? 'schedule_activated' : 'schedule_deactivated');
+      this._updateStatus();
+    } catch (error) {
+      this._message = this._errorMessage(error, 'error_activity'); this._error = true;
+    } finally {
+      this._busy = false; this._controls(); this._renderMessage(); this._flushQueuedRefresh();
+    }
   }
   async _toggleMaster() {
     if (this._busy || !['on', 'off'].includes(this._hass?.states?.[this._config.master_entity]?.state)) return;
@@ -271,6 +300,7 @@ class IrrigationIntegrationCard extends ElementBase {
     if (button.dataset.day) { const day = button.dataset.day; this._days.has(day) ? this._days.delete(day) : this._days.add(day); }
     else if (button.dataset.zone) { const n = button.dataset.zone; this._zones.has(n) ? this._zones.delete(n) : this._zones.add(n); }
     else if (button.dataset.preset) this._days = new Set(button.dataset.preset === 'all' ? DAYS : button.dataset.preset === 'work' ? DAYS.slice(0, 5) : DAYS.slice(5));
+    else if (button.dataset.toggleSchedule) { this._toggleSchedule(button.dataset.toggleSchedule); return; }
     else if (button.dataset.edit) {
       const found = this._entries.find(e => e.schedule.id === button.dataset.edit);
       if (!found) return;
@@ -297,6 +327,7 @@ class IrrigationIntegrationCard extends ElementBase {
     for (const button of this.shadowRoot.querySelectorAll('button')) {
       const action = button.dataset.action;
       let disabled = Boolean(locked);
+      if (button.dataset.toggleSchedule) disabled ||= readOnly || !this._ready || !this._catalogReady || Boolean(this._entries.find(entry => entry.schedule.id === button.dataset.toggleSchedule)?.error);
       if (action === 'save') disabled ||= readOnly || !this._ready || !this._catalogReady || Boolean(this._editing?.error);
       if (action === 'add-form') disabled ||= readOnly || !this._ready || !this._catalogReady;
       if (action === 'delete') disabled ||= readOnly || !this._editing;
@@ -339,8 +370,18 @@ class IrrigationIntegrationCard extends ElementBase {
     setDisabled(this.shadowRoot.querySelector('[data-action=close-all]'), this._busy || (this._loading && !this._ready) || !this._canManual);
     for (const row of this.shadowRoot.querySelectorAll('[data-edit]')) {
       const entry = this._entries.find(e => e.schedule.id === row.dataset.edit), state = states[entry?.entityId]?.state;
-      row.classList.toggle('active', state === 'on');
-      setText(row.querySelector('.badge'), entry?.error ? this._tr('error') : state === 'on' ? master === 'on' ? this._tr('active') : this._tr('blocked') : state === 'off' ? this._tr('waiting') : this._tr('schedule_unavailable'));
+      const enabled = entry?.entry?.rule?.enabled !== false;
+      row.classList.toggle('active', enabled && state === 'on');
+      row.classList.toggle('inactive', !enabled);
+      setText(row.querySelector('.badge'), entry?.error ? this._tr('error') : !enabled ? this._tr('schedule_inactive') : state === 'on' ? master === 'on' ? this._tr('active') : this._tr('blocked') : state === 'off' ? this._tr('waiting') : this._tr('schedule_unavailable'));
+    }
+    for (const control of this.shadowRoot.querySelectorAll('[data-toggle-schedule]')) {
+      const entry = this._entries.find(entry => entry.schedule.id === control.dataset.toggleSchedule);
+      const enabled = entry?.entry?.rule?.enabled !== false;
+      const name = entry?.entry?.rule?.title || entry?.schedule.name || this._tr('schedule');
+      setAttr(control, 'aria-checked', enabled);
+      setDisabled(control, this._busy || (this._loading && !this._ready) || !this._hass?.user?.is_admin || !this._ready || !this._catalogReady || Boolean(entry?.error));
+      setAttr(control, 'title', this._tr(enabled ? 'deactivate_schedule' : 'activate_schedule', {name}));
     }
   }
   _renderEntries() {
@@ -349,7 +390,7 @@ class IrrigationIntegrationCard extends ElementBase {
     const markup = this._entries.length ? this._entries.map(e => {
       const rule = e.entry?.rule;
       const days = rule?.days.map(d => this._tr('days')[DAYS.indexOf(d)]).join(', ') || '';
-      return `<button class="entry ${this._editing?.schedule.id === e.schedule.id ? 'selected' : ''}" data-edit="${esc(e.schedule.id)}" aria-label="${esc(this._tr('edit_schedule', {name: rule?.title || days || e.schedule.name}))}"><span class="entry-title"><span>${esc(rule?.title || this._tr('schedule'))}</span><span class="badge"></span></span>${rule ? `<span>${esc(days)} · ${esc(rule.from)}–${esc(rule.to)}</span><small>${esc(this._tr('valves', {names: rule.zones.map(id=>this._valveName(id)).join(', ')}))}${seconds(rule.to, true) < seconds(rule.from) ? this._tr('next_day_suffix') : ''}</small>` : ''}${e.error ? `<small class="danger">${esc(this._entryError(e))}</small>` : ''}</button>`;
+      return `<div class="entry-row"><button class="entry ${this._editing?.schedule.id === e.schedule.id ? 'selected' : ''}" data-edit="${esc(e.schedule.id)}" aria-label="${esc(this._tr('edit_schedule', {name: rule?.title || days || e.schedule.name}))}"><span class="entry-title"><span>${esc(rule?.title || this._tr('schedule'))}</span><span class="badge"></span></span>${rule ? `<span>${esc(days)} · ${esc(rule.from)}–${esc(rule.to)}</span><small>${esc(this._tr('valves', {names: rule.zones.map(id=>this._valveName(id)).join(', ')}))}${seconds(rule.to, true) < seconds(rule.from) ? this._tr('next_day_suffix') : ''}</small>` : ''}${e.error ? `<small class="danger">${esc(this._entryError(e))}</small>` : ''}</button><button class="schedule-toggle" data-toggle-schedule="${esc(e.schedule.id)}" role="switch" aria-label="${esc(this._tr('schedule_activity', {name: rule?.title || e.schedule.name}))}"><span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span></button></div>`;
     }).join('') : `<div class="hint">${esc(this._tr('empty'))}</div>`;
     if (container._irrigationMarkup !== markup) {
       container.innerHTML = markup;

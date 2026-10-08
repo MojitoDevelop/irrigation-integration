@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 — schedule activation
+
+- Per-schedule activity switch in the card, translated into English, Polish and German.
+- Disabled schedules retain their complete configuration and are ignored by the server controller.
+- Activation persists in native Schedule data across HA restarts; existing schedules default to active.
+- Deactivation closes only valves no longer requested by another active schedule.
+
 ## 0.2.0 — localization and publication package
 
 - English, Polish and German native configuration/options and card interfaces, localized status, errors and time-picker accessibility labels.

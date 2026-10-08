@@ -93,17 +93,13 @@ jobs:
                 return;
               }
             } else {
+              const notesPath = `release-source/docs/RELEASE_NOTES_${version}.md`;
+              const notes = fs.readFileSync(notesPath, 'utf8').trim();
+              if (!notes.startsWith(`# Irrigation ${version}\n`)) throw new Error('Release notes do not match the requested version');
               const body = [
-                'Weekly irrigation schedules, overlapping valve control, manual operation and a dashboard card running entirely in Home Assistant.',
-                '',
-                '- English, Polish and German interfaces.',
-                '- English default entity names; existing entity IDs and schedules are preserved.',
-                '- New installations start with no valves selected.',
-                '- Live card updates without periodic polling.',
+                notes,
                 '',
                 '**Requires Home Assistant 2026.10.0 or newer.**',
-                '',
-                'Install through HACS as a custom repository (Integration), or use the manual-install archive below. Restart Home Assistant after installation or update.',
                 '',
                 `Release source: ${commit}. HACS, Hassfest and source validation passed before publication.`,
                 '',
