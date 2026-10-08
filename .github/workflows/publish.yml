@@ -1,0 +1,121 @@
+name: Publish verified release
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/release.json]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: irrigation-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'MojitoDevelop/irrigation-integration'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the requested commit passed all validation jobs
+        id: request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const request = JSON.parse(fs.readFileSync('.github/release.json', 'utf8'));
+            if (!/^\d+\.\d+\.\d+$/.test(request.version) || !/^[a-f0-9]{40}$/.test(request.commit) || !Number.isSafeInteger(request.validation_run)) {
+              throw new Error('Invalid release request');
+            }
+            const repo = {owner: context.repo.owner, repo: context.repo.repo};
+            const {data: run} = await github.rest.actions.getWorkflowRun({...repo, run_id: request.validation_run});
+            if (run.head_sha !== request.commit || run.status !== 'completed' || run.conclusion !== 'success' || run.path !== '.github/workflows/validate.yml') {
+              throw new Error('The requested commit has not passed the Validate workflow');
+            }
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {...repo, run_id: request.validation_run, filter: 'latest'});
+            for (const name of ['source-checks', 'hassfest', 'hacs']) {
+              if (!jobs.some(job => job.name === name && job.conclusion === 'success')) {
+                throw new Error(`Required validation did not pass: ${name}`);
+              }
+            }
+            core.setOutput('version', request.version);
+            core.setOutput('commit', request.commit);
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.commit }}
+          path: release-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Validate and package the exact verified source
+        working-directory: release-source
+        env:
+          RELEASE_VERSION: ${{ steps.request.outputs.version }}
+        run: |
+          python scripts/check_release.py --repository "$GITHUB_REPOSITORY" --version "$RELEASE_VERSION"
+          python scripts/package_release.py
+      - name: Create release, upload archives and publish
+        uses: actions/github-script@v7
+        env:
+          RELEASE_VERSION: ${{ steps.request.outputs.version }}
+          RELEASE_COMMIT: ${{ steps.request.outputs.commit }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const crypto = require('node:crypto');
+            const version = process.env.RELEASE_VERSION;
+            const commit = process.env.RELEASE_COMMIT;
+            const tag = `v${version}`;
+            const repo = {owner: context.repo.owner, repo: context.repo.repo};
+            const filenames = [`irrigation-schedule-${version}.zip`, `irrigation-schedule-repository-${version}.zip`, 'SHA256SUMS'];
+            const sums = fs.readFileSync('release-source/dist/SHA256SUMS', 'utf8');
+            for (const filename of filenames.filter(name => name.endsWith('.zip'))) {
+              const digest = crypto.createHash('sha256').update(fs.readFileSync(`release-source/dist/${filename}`)).digest('hex');
+              if (!sums.split('\n').includes(`${digest}  ${filename}`)) throw new Error(`Checksum mismatch: ${filename}`);
+            }
+            let release;
+            try {
+              release = (await github.rest.repos.getReleaseByTag({...repo, tag})).data;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (release) {
+              const {data: ref} = await github.rest.git.getRef({...repo, ref: `tags/${tag}`});
+              if (ref.object.type !== 'commit' || ref.object.sha !== commit) throw new Error('Existing release tag points to a different commit');
+              if (!release.draft) {
+                core.notice(`Release already published: ${release.html_url}`);
+                return;
+              }
+            } else {
+              const body = [
+                'Weekly irrigation schedules, overlapping valve control, manual operation and a dashboard card running entirely in Home Assistant.',
+                '',
+                '- English, Polish and German interfaces.',
+                '- English default entity names; existing entity IDs and schedules are preserved.',
+                '- New installations start with no valves selected.',
+                '- Live card updates without periodic polling.',
+                '',
+                '**Requires Home Assistant 2026.10.0 or newer.**',
+                '',
+                'Install through HACS as a custom repository (Integration), or use the manual-install archive below. Restart Home Assistant after installation or update.',
+                '',
+                `Release source: ${commit}. HACS, Hassfest and source validation passed before publication.`,
+                '',
+                `[Documentation](https://github.com/${context.repo.owner}/${context.repo.repo}#readme) · [Polska instrukcja](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${tag}/docs/INSTALL.pl.md)`
+              ].join('\n');
+              release = (await github.rest.repos.createRelease({...repo, tag_name: tag, target_commitish: commit, name: `Irrigation ${version}`, body, draft: true, prerelease: false})).data;
+            }
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, {...repo, release_id: release.id});
+            for (const name of filenames) {
+              for (const asset of assets.filter(asset => asset.name === name)) await github.rest.repos.deleteReleaseAsset({...repo, asset_id: asset.id});
+              await github.rest.repos.uploadReleaseAsset({...repo, release_id: release.id, name, data: fs.readFileSync(`release-source/dist/${name}`)});
+            }
+            const {data: published} = await github.rest.repos.updateRelease({...repo, release_id: release.id, draft: false, make_latest: 'true'});
+            await core.summary.addLink(`Irrigation ${version}`, published.html_url).write();
+            core.notice(`Published ${published.html_url}`);
