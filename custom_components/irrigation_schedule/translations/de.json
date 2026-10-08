@@ -1,0 +1,44 @@
+{
+  "title": "Bewässerung",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bewässerungsventile",
+        "description": "Wählen Sie die zu steuernden Ventile aus. Anfangs ist kein Ventil ausgewählt. Im nächsten Schritt legen Sie Anzeigenamen fest.",
+        "data": {
+          "entities": "Ventile"
+        }
+      },
+      "names": {
+        "title": "Ventilnamen",
+        "description": "Geben Sie für jede ausgewählte Entität einen Namen ein."
+      }
+    },
+    "error": {
+      "invalid_valves": "Wählen Sie unterschiedliche switch-Entitäten; der Automatikschalter kann kein Ventil sein.",
+      "invalid_names": "Jedes Ventil benötigt einen Namen mit 1–80 Zeichen."
+    },
+    "abort": {
+      "already_configured": "Die Bewässerungssteuerung ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Bewässerungsventile",
+        "description": "Aktualisieren Sie die Ventilliste. Entfernte Ventile werden von der Steuerung geschlossen.",
+        "data": {
+          "entities": "Ventile"
+        }
+      },
+      "names": {
+        "title": "Ventilnamen",
+        "description": "Umbenennen ändert weder Zuordnungen noch manuell eingestellte Ventilzustände."
+      }
+    },
+    "error": {
+      "invalid_valves": "Wählen Sie unterschiedliche switch-Entitäten; der Automatikschalter kann kein Ventil sein.",
+      "invalid_names": "Jedes Ventil benötigt einen Namen mit 1–80 Zeichen."
+    }
+  }
+}

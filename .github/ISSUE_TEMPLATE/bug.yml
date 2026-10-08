@@ -1,0 +1,33 @@
+name: Zgłoszenie błędu / Bug report
+description: Problem z integracją lub kartą / Integration or card problem
+body:
+  - type: input
+    id: integration_version
+    attributes:
+      label: Wersja integracji / Integration version
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Wersja Home Assistant / Home Assistant version
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Objawy i oczekiwane działanie / Actual and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Kroki odtworzenia / Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logi i atrybuty sensora / Logs and status sensor attributes
+      description: Usuń tokeny, hasła, adresy prywatne i inne dane wrażliwe. / Remove credentials and private data.
+      render: text

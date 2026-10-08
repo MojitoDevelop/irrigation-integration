@@ -1,0 +1,44 @@
+{
+  "title": "Nawodnienie",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zawory nawodnienia",
+        "description": "Wybierz encje zaworów, którymi chcesz sterować. Początkowo żaden zawór nie jest zaznaczony. W kolejnym kroku ustaw nazwy.",
+        "data": {
+          "entities": "Zawory"
+        }
+      },
+      "names": {
+        "title": "Nazwy zaworów",
+        "description": "Wpisz nazwę dla każdej wybranej encji. Nazwy pojawią się w karcie i statusie automatyki."
+      }
+    },
+    "error": {
+      "invalid_valves": "Wybierz różne encje switch; przełącznik automatyki nie może być zaworem.",
+      "invalid_names": "Każdy zawór wymaga nazwy o długości 1–80 znaków."
+    },
+    "abort": {
+      "already_configured": "Sterownik nawodnienia jest już skonfigurowany."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zawory nawodnienia",
+        "description": "Zmień listę zaworów. Usunięte zawory zostaną zamknięte przez sterownik.",
+        "data": {
+          "entities": "Zawory"
+        }
+      },
+      "names": {
+        "title": "Nazwy zaworów",
+        "description": "Zmiana nazw nie zmienia przypisań harmonogramów ani ręcznie ustawionych stanów."
+      }
+    },
+    "error": {
+      "invalid_valves": "Wybierz różne encje switch; przełącznik automatyki nie może być zaworem.",
+      "invalid_names": "Każdy zawór wymaga nazwy o długości 1–80 znaków."
+    }
+  }
+}

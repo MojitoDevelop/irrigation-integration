@@ -1,0 +1,79 @@
+# Standalone navigation card; requires custom:button-card.
+# Existing installs may still use sensor.nawodnienie_integracja_status.
+# Set entity and variables.navigation_path to match your dashboard.
+type: custom:button-card
+entity: sensor.irrigation_status
+name: |
+  [[[
+    const lang = String(hass.locale?.language || hass.language || 'en').toLowerCase().split(/[-_]/)[0];
+    return (variables.translations[lang] || variables.translations.en).title;
+  ]]]
+icon: mdi:sprinkler-variant
+show_icon: true
+show_name: true
+show_state: true
+variables:
+  navigation_path: /irrigation
+__TRANSLATIONS__
+tap_action:
+  action: navigate
+  navigation_path: '[[[ return variables.navigation_path; ]]]'
+hold_action:
+  action: none
+double_tap_action:
+  action: none
+state_display: |
+  [[[
+    const lang = String(hass.locale?.language || hass.language || 'en').toLowerCase().split(/[-_]/)[0];
+    const labels = variables.translations[lang] || variables.translations.en;
+    const text = (key, params = {}) => (labels[key] || variables.translations.en[key] || key).replace(/\{(\w+)\}/g, (match, name) => params[name] == null ? match : String(params[name]));
+    if (!entity || ['unknown', 'unavailable'].includes(entity.state)) return text('no_status');
+    const a = entity.attributes || {};
+    if (!a.status_code || !labels[a.status_code]) return entity.state;
+    const params = { ...a.status_params };
+    if (a.status_code === 'status_error' && Array.isArray(a.error_details)) params.errors = a.error_details.map(issue => text(issue.code, issue.params)).join(' · ');
+    return text(a.status_code, params);
+  ]]]
+styles:
+  card:
+    - background: transparent
+    - border: 1px solid var(--divider-color)
+    - border-radius: 18px
+    - box-shadow: none
+    - padding: 16px
+    - text-align: left
+  grid:
+    - grid-template-areas: '"i n" "i s"'
+    - grid-template-columns: 44px minmax(0, 1fr)
+    - grid-template-rows: min-content min-content
+    - column-gap: 14px
+    - row-gap: 5px
+  img_cell:
+    - width: 44px
+    - height: 44px
+    - border-radius: 14px
+    - background: rgba(40, 126, 83, 0.10)
+    - align-self: center
+  icon:
+    - width: 25px
+    - color: |
+        [[[
+          if (entity?.attributes?.errors?.length || /^(Error|Błąd|Fehler):/.test(entity?.state || '')) return 'var(--error-color, #d96276)';
+          if (!entity || ['unknown', 'unavailable'].includes(entity.state)) return 'var(--disabled-text-color)';
+          if (entity.attributes?.mode === 'stopping') return 'var(--warning-color, #dca54b)';
+          if (entity.attributes?.open_valves?.length) return hass.themes?.darkMode ? '#6adca2' : '#287e53';
+          return 'var(--secondary-text-color)';
+        ]]]
+  name:
+    - justify-self: start
+    - font-size: 14px
+    - font-weight: 600
+    - color: var(--primary-text-color)
+  state:
+    - justify-self: start
+    - font-size: 12px
+    - line-height: 1.45
+    - color: var(--secondary-text-color)
+    - white-space: normal
+    - overflow-wrap: anywhere
+    - text-align: left

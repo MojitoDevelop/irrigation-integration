@@ -1,0 +1,44 @@
+{
+  "title": "Irrigation",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Irrigation valves",
+        "description": "Select the valve entities to control. The initial selection is empty. Set display names in the next step.",
+        "data": {
+          "entities": "Valves"
+        }
+      },
+      "names": {
+        "title": "Valve names",
+        "description": "Enter a name for each selected entity."
+      }
+    },
+    "error": {
+      "invalid_valves": "Select distinct switch entities; the automation switch cannot be a valve.",
+      "invalid_names": "Each valve needs a name of 1–80 characters."
+    },
+    "abort": {
+      "already_configured": "The irrigation controller is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Irrigation valves",
+        "description": "Update the valve list. Removed valves will be closed by the controller.",
+        "data": {
+          "entities": "Valves"
+        }
+      },
+      "names": {
+        "title": "Valve names",
+        "description": "Renaming does not change assignments or manual valve states."
+      }
+    },
+    "error": {
+      "invalid_valves": "Select distinct switch entities; the automation switch cannot be a valve.",
+      "invalid_names": "Each valve needs a name of 1–80 characters."
+    }
+  }
+}

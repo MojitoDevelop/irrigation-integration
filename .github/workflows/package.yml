@@ -1,0 +1,39 @@
+name: Prepare release artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version matching manifest.json and const.py (without v)
+        required: true
+        default: "0.2.0"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify the selected version and repository
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: python scripts/check_release.py --repository "$GITHUB_REPOSITORY" --version "$RELEASE_VERSION"
+      - run: python test-model.py
+      - run: node test-card-model.mjs
+      - run: python test-release.py
+      - run: python scripts/package_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irrigation-schedule-${{ inputs.version }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30

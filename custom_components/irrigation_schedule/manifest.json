@@ -1,0 +1,20 @@
+{
+  "domain": "irrigation_schedule",
+  "name": "Irrigation",
+  "codeowners": [
+    "@MojitoDevelop"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "frontend",
+    "http",
+    "schedule",
+    "websocket_api"
+  ],
+  "documentation": "https://github.com/MojitoDevelop/irrigation-integration#readme",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/MojitoDevelop/irrigation-integration/issues",
+  "requirements": [],
+  "version": "0.2.0"
+}

@@ -1,0 +1,4 @@
+# Opcjonalny zasób awaryjny Lovelace — dodaj tylko, jeśli automatyczne ładowanie karty nie zadziała po restarcie HA i odświeżeniu przeglądarki.
+# Nie wklejaj tego jako konfiguracji karty.
+url: /irrigation_schedule/irrigation-schedule-card.js?v=0.2.0
+type: module

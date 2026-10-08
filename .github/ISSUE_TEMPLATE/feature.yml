@@ -1,0 +1,9 @@
+name: Propozycja funkcji / Feature request
+description: Opisz potrzebę lub zmianę / Describe an improvement
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Potrzeba i proponowane działanie / Use case and proposed behavior
+    validations:
+      required: true
