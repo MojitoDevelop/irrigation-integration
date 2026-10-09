@@ -6,7 +6,9 @@ Control irrigation valves with weekly schedules and a dashboard card. Everything
 
 [Polska wersja](docs/README.pl.md)
 
-![Irrigation dashboard](docs/images/preview-light.png)
+| Light theme | Dark theme |
+| --- | --- |
+| ![Irrigation card in English — light theme](docs/images/preview-light-en.png) | ![Irrigation card in English — dark theme](docs/images/preview-dark-en.png) |
 
 ## Features
 
