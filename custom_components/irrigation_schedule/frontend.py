@@ -37,7 +37,8 @@ async def async_register_card(hass):
     ])
     hass.http.register_view(IrrigationCardLoaderView(source))
     # Also covers YAML resources and a dashboard already open while HA starts.
-    frontend.add_extra_js_url(hass, CARD_URL)
+    # A separate module URL gives HA a second chance if the first bootstrap fetch fails.
+    frontend.add_extra_js_url(hass, CARD_URL + '&source=frontend')
     resources = hass.data[LOVELACE_DATA].resources
     if not isinstance(resources, ResourceStorageCollection):
         return  # The user's YAML resource definitions remain under their control.
