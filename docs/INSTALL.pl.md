@@ -1,12 +1,12 @@
-# Nawodnienie 0.3.0 — instalacja poprawionej wersji
+# Nawodnienie 0.3.1 — instalacja poprawionej wersji
 
 Ta paczka zawiera **integrację oraz jej nową kartę**. Sam wcześniejszy folder z `www` nie zawiera tej integracji i nie rejestruje nowego typu karty.
 
 1. Skopiuj cały folder `custom_components/irrigation_schedule` do **`/config/custom_components/irrigation_schedule`**, zastępując poprzednie pliki integracji. Nie kopiuj go do `www`. Nie usuwaj konfiguracji w `.storage` ani zapisanych pomocników Schedule.
 2. Wyłącz wcześniejszy sterownik zaworów: flow Node-RED lub poprzedni pakiet YAML, jeśli jeszcze działa. Zachowaj harmonogramy.
-3. **Uruchom ponownie Home Assistant**, aby serwer załadował nowy Python i adres JS z wersją `0.3.0`.
-4. W **Ustawienia → Urządzenia i usługi** upewnij się, że „Nawodnienie” jest uruchomione. Jeśli nie było dodane, wybierz **Dodaj integrację → Nawodnienie**, wskaż zawory i ich nazwy. W informacjach integracji powinna być wersja **0.3.0**.
-5. Odśwież przeglądarkę z pominięciem cache, np. **Ctrl+Shift+R**, albo zamknij i ponownie uruchom aplikację HA.
+3. **Uruchom ponownie Home Assistant**, aby serwer załadował nowy Python i adres JS z wersją `0.3.1`.
+4. W **Ustawienia → Urządzenia i usługi** upewnij się, że „Nawodnienie” jest uruchomione. Jeśli nie było dodane, wybierz **Dodaj integrację → Nawodnienie**, wskaż zawory i ich nazwy. W informacjach integracji powinna być wersja **0.3.1**.
+5. Otwórz ponownie dashboard albo aplikację HA. Integracja sama aktualizuje swój zasób Lovelace.
 6. Zastąp YAML głównej karty:
 
    ```yaml
@@ -20,12 +20,12 @@ Stary typ **`custom:irrigation-schedule-card`** uruchamia wcześniejszą kartę,
 
 Karta jest normalnie rejestrowana automatycznie. Jeśli po powyższych krokach jej element nadal nie jest dostępny:
 
-1. Otwórz na swoim adresie HA ścieżkę **`/irrigation_schedule/irrigation-schedule-card.js?v=0.3.0`**. Powinien zostać zwrócony kod JavaScript, rozpoczynający się od `const INTEGRATION_CARD_VERSION = "0.3.0";`.
+1. Otwórz na swoim adresie HA ścieżkę **`/irrigation_schedule/irrigation-schedule-card.js?v=0.3.1`**. Powinien zostać zwrócony moduł ładujący kartę ze ścieżki `/irrigation_schedule/0.3.1/irrigation-schedule-card.js`.
 2. Jeśli otrzymujesz **404**, nie został załadowany backend nowej integracji. Sprawdź folder instalacji, restart, stan integracji oraz logi `custom_components.irrigation_schedule`. Dodanie zasobu nie naprawi brakującego backendu.
 3. Jeśli plik JS działa, dodaj w **zasobach dashboardu Lovelace** (nie w YAML karty) zasób:
 
    ```yaml
-   url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.0
+   url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.1
    type: module
    ```
 
@@ -33,7 +33,9 @@ Karta jest normalnie rejestrowana automatycznie. Jeśli po powyższych krokach j
 
 Jeżeli starsza karta nie jest używana na żadnym dashboardzie, usuń jej stary zasób z `/local/...`, aby nie ładować go dalej. Nie trzeba usuwać zapisanych harmonogramów.
 
-## Aktualizacja do 0.3.0
+## Aktualizacja do 0.3.1
+
+Nowy moduł ponawia nieudane pobrania karty i próbuje ponownie po odzyskaniu połączenia lub powrocie do aplikacji. W trybie zasobów Lovelace zapisanych przez UI adres jest aktualizowany automatycznie, a duplikaty zasobu tej integracji są usuwane. Konfiguracja zasobów YAML nie jest zmieniana; karta jest dodatkowo rejestrowana przez frontend HA.
 
 Po aktualizacji przez HACS uruchom ponownie HA. Przy każdym harmonogramie pojawi się przełącznik aktywności. Wyłączony harmonogram pozostaje zapisany i edytowalny, lecz automatyka go pomija. Dotychczasowe harmonogramy są domyślnie aktywne.
 
@@ -62,4 +64,4 @@ Jeśli przycisku nie ma, spróbuj w ustawieniach Androida: **Aplikacje → Home 
 
 **Chrome na Androidzie:** wybierz **⋮ → Usuń dane przeglądania → Więcej opcji**, zakres **Od początku / Cały okres** i zaznacz tylko **Obrazy i pliki zapisane w pamięci podręcznej**. Odznacz historię, cookies i pozostałe kategorie. Usuń dane i otwórz dashboard ponownie. [Instrukcja Google](https://support.google.com/chrome/answer/2392709?co=GENIE.Platform%3DAndroid&hl=pl).
 
-Aplikacja HA i Chrome mają osobną pamięć podręczną: wyczyszczenie jednej nie odświeża drugiej. Jeżeli karta nadal się nie wczytuje na telefonie, sprawdź opisany wyżej zasób JS pod adresem HA używanym **na telefonie**. W ręcznym zasobie ustaw bieżącą wersję `?v=0.3.0`.
+Aplikacja HA i Chrome mają osobną pamięć podręczną: wyczyszczenie jednej nie odświeża drugiej. Jeżeli karta nadal się nie wczytuje na telefonie, sprawdź opisany wyżej zasób JS pod adresem HA używanym **na telefonie**. W ręcznym zasobie ustaw bieżącą wersję `?v=0.3.1`.

@@ -1,9 +1,9 @@
-# Installation and update — 0.3.0
+# Installation and update — 0.3.1
 
 1. Extract the archive and copy **`custom_components/irrigation_schedule`** into **`/config/custom_components/irrigation_schedule`**, replacing the old integration folder.
 2. Restart Home Assistant.
 3. For a new installation, add **Irrigation** in **Settings → Devices & services**, select valve switch entities, then set their display names. No entities are selected by default. An update preserves your existing configuration and registered entity IDs.
-4. Refresh the frontend cache and use:
+4. Reopen the dashboard and use:
 
 ```yaml
 type: custom:irrigation-schedule-integration-card
@@ -11,14 +11,14 @@ type: custom:irrigation-schedule-integration-card
 
 The old `custom:irrigation-schedule-card` belongs to the earlier flow/package version. Remove old resources for that card from active dashboard use.
 
-The integration automatically registers its JavaScript. If the new card is missing, open `/irrigation_schedule/irrigation-schedule-card.js?v=0.3.0` on your HA server and check it returns JavaScript starting with `const INTEGRATION_CARD_VERSION = "0.3.0";`. If necessary, add this dashboard resource manually:
+The integration automatically registers its JavaScript. If the new card is missing, open `/irrigation_schedule/irrigation-schedule-card.js?v=0.3.1` on your HA server and check it returns the JavaScript bootstrap with the bundle path `/irrigation_schedule/0.3.1/irrigation-schedule-card.js`. If necessary, add this dashboard resource manually:
 
 ```yaml
-url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.0
+url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.1
 type: module
 ```
 
-An older manual resource must use the current version query. Do not point it at an old `/local/` copy of the card.
+In storage mode, the integration updates its resource URL automatically and removes duplicate URLs for this integration. In YAML resource mode, frontend registration still loads the card; you can also add the module above to your configured resources. Do not point it at an old `/local/` copy of the card.
 
 ## Language and entity names
 

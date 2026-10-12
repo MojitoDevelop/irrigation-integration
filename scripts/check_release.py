@@ -69,6 +69,9 @@ def check(root, repository=None, version=None):
     spec.loader.exec_module(builder)
     if builder.bundle(root) != (integration / 'frontend/irrigation-schedule-card.js').read_text(encoding='utf-8'):
         errors.append('Card bundle is outdated; run python3 scripts/build.py.')
+    loader_path = integration / 'frontend/irrigation-schedule-loader.js'
+    if not loader_path.is_file() or builder.loader(root) != loader_path.read_text(encoding='utf-8'):
+        errors.append('Card loader is outdated; run python3 scripts/build.py.')
     if builder.navigation(root) != (root / 'examples/navigation-card.yaml').read_text(encoding='utf-8'):
         errors.append('Navigation YAML is outdated; run python3 scripts/build.py.')
     locales = {language: json.loads((integration / 'locales' / (language + '.json')).read_text(encoding='utf-8')) for language in ('en', 'pl', 'de')}

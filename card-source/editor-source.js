@@ -432,4 +432,4 @@ class IrrigationIntegrationCard extends ElementBase {
   }
 }
 if (globalThis.customElements && !customElements.get('irrigation-schedule-integration-card')) customElements.define('irrigation-schedule-integration-card', IrrigationIntegrationCard);
-if (globalThis.window) { window.customCards ||= []; window.customCards.push({ type: 'irrigation-schedule-integration-card', name: 'Irrigation', description: 'Whole schedules with days, times and valves. Language follows Home Assistant.' }); }
+if (globalThis.window) { window.customCards ||= []; if (!window.customCards.some(card => card.type === 'irrigation-schedule-integration-card')) window.customCards.push({ type: 'irrigation-schedule-integration-card', name: 'Irrigation', description: 'Whole schedules with days, times and valves. Language follows Home Assistant.' }); }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 — reliable card loading
+
+- Register the card as a Lovelace module resource and update obsolete URLs without touching other resources.
+- Load the card bundle from a versioned path through a non-cached, idempotent bootstrap.
+- Retry failed imports and resume loading after reconnecting or returning to the app.
+
+
 ## 0.3.0 — schedule activation
 
 - Per-schedule activity switch in the card, translated into English, Polish and German.

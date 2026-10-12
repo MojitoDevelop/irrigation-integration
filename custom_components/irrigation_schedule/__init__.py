@@ -1,12 +1,9 @@
 """Irrigation integration with config flow, persistent catalog and bundled card."""
-from pathlib import Path
-
-from homeassistant.components import frontend
-from homeassistant.components.http import StaticPathConfig
 from homeassistant.helpers import config_validation as cv
 
-from .const import CARD_URL, DOMAIN, PLATFORMS
+from .const import DOMAIN, PLATFORMS
 from .controller import IrrigationController
+from .frontend import async_register_card
 from .localization import LOCALES_KEY, load_locales
 from .websocket import async_register_api
 
@@ -17,8 +14,7 @@ async def async_setup(hass, config):
     hass.data.setdefault(DOMAIN, {})
     hass.data[LOCALES_KEY] = await hass.async_add_executor_job(load_locales)
     async_register_api(hass)
-    await hass.http.async_register_static_paths([StaticPathConfig('/irrigation_schedule/irrigation-schedule-card.js', str(Path(__file__).parent / 'frontend' / 'irrigation-schedule-card.js'), False)])
-    frontend.add_extra_js_url(hass, CARD_URL)
+    await async_register_card(hass)
     return True
 
 

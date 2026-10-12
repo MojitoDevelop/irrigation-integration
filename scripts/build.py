@@ -18,6 +18,12 @@ def bundle(root):
     return resource + editor[split:]
 
 
+def loader(root):
+    version = json.loads((root / 'custom_components/irrigation_schedule/manifest.json').read_text(encoding='utf-8'))['version']
+    url = f'/irrigation_schedule/{version}/irrigation-schedule-card.js'
+    return (root / 'card-source/loader-source.js').read_text(encoding='utf-8').replace('__CARD_BUNDLE_URL__', json.dumps(url))
+
+
 def navigation(root):
     lines = ['  translations:']
     for language in ('en', 'pl', 'de'):
@@ -36,15 +42,20 @@ if __name__ == '__main__':
     root = Path(__file__).resolve().parents[1]
     output = root / 'custom_components/irrigation_schedule/frontend/irrigation-schedule-card.js'
     resource = bundle(root)
+    loader_resource = loader(root)
+    loader_output = output.with_name('irrigation-schedule-loader.js')
     navigation_resource = navigation(root)
     navigation_output = root / 'examples/navigation-card.yaml'
     if args.check:
         if output.read_text(encoding='utf-8') != resource:
             parser.exit(1, 'Card bundle is outdated; run python3 scripts/build.py\n')
+        if not loader_output.is_file() or loader_output.read_text(encoding='utf-8') != loader_resource:
+            parser.exit(1, 'Card loader is outdated; run python3 scripts/build.py\n')
         if navigation_output.read_text(encoding='utf-8') != navigation_resource:
             parser.exit(1, 'Navigation YAML is outdated; run python3 scripts/build.py\n')
         print('PASS committed card bundle and navigation YAML match their sources')
     else:
+        loader_output.write_text(loader_resource, encoding='utf-8')
         output.write_text(resource, encoding='utf-8')
         navigation_output.write_text(navigation_resource, encoding='utf-8')
         print('Built bundled integration card')
