@@ -58,6 +58,6 @@ valves:
 | `switch.irrigation_automation` | Enable or disable automatic irrigation |
 | `sensor.irrigation_status` | Current activity and errors |
 
-Schedules use native HA Schedule helpers. Existing entity IDs and schedules are preserved during updates. Replace the integration files, restart HA and refresh the frontend cache. Disable any previous controller using the same valves.
+Schedules use native HA Schedule helpers. Existing entity IDs and schedules are preserved during updates. Replace the integration files, restart HA and reopen the dashboard. The integration updates its Lovelace resource automatically. Disable any previous controller using the same valves.
 
 [Installation and troubleshooting](docs/INSTALL.md) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/MojitoDevelop/irrigation-integration/issues) · [MIT license](LICENSE)

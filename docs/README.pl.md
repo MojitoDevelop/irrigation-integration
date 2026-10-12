@@ -56,6 +56,6 @@ valves:
 | `switch.irrigation_automation` | Włączenie i wyłączenie automatyki |
 | `sensor.irrigation_status` | Aktualne działanie i błędy |
 
-Harmonogramy korzystają z natywnych pomocników Schedule. Aktualizacja zachowuje istniejące identyfikatory encji i harmonogramy. Podmień pliki integracji, uruchom ponownie HA i odśwież pamięć podręczną interfejsu. Wyłącz wcześniejszy sterownik tych samych zaworów.
+Harmonogramy korzystają z natywnych pomocników Schedule. Aktualizacja zachowuje istniejące identyfikatory encji i harmonogramy. Podmień pliki integracji, uruchom ponownie HA i otwórz ponownie dashboard. Integracja automatycznie aktualizuje swój zasób Lovelace. Wyłącz wcześniejszy sterownik tych samych zaworów.
 
 [Instalacja i rozwiązywanie problemów](INSTALL.pl.md) · [Historia zmian](../CHANGELOG.md) · [Zgłoś problem](https://github.com/MojitoDevelop/irrigation-integration/issues) · [Licencja MIT](../LICENSE)
