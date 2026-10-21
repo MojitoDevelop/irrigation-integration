@@ -1,4 +1,4 @@
-# Installation and update — 0.3.1
+# Installation and update — 0.3.2
 
 1. Extract the archive and copy **`custom_components/irrigation_schedule`** into **`/config/custom_components/irrigation_schedule`**, replacing the old integration folder.
 2. Restart Home Assistant.
@@ -11,10 +11,10 @@ type: custom:irrigation-schedule-integration-card
 
 The old `custom:irrigation-schedule-card` belongs to the earlier flow/package version. Remove old resources for that card from active dashboard use.
 
-The integration automatically registers its JavaScript. If the new card is missing, open `/irrigation_schedule/irrigation-schedule-card.js?v=0.3.1` on your HA server and check it returns the JavaScript bootstrap with the bundle path `/irrigation_schedule/0.3.1/irrigation-schedule-card.js`. If necessary, add this dashboard resource manually:
+The integration automatically registers its JavaScript. If the new card is missing, open `/irrigation_schedule/irrigation-schedule-card.js?v=0.3.2` on your HA server and check it returns the JavaScript bootstrap with the bundle path `/irrigation_schedule/0.3.2/irrigation-schedule-card.js`. If necessary, add this dashboard resource manually:
 
 ```yaml
-url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.1
+url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.2
 type: module
 ```
 

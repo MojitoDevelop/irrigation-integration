@@ -2,7 +2,7 @@
 
 Sterowanie zaworami za pomocą tygodniowych harmonogramów i karty dashboardu. Wszystko działa w Home Assistant, również przy zamkniętej aplikacji i dashboardzie. Node-RED nie jest potrzebny.
 
-**Wersja:** 0.3.1 · **Home Assistant:** 2026.10.0 lub nowszy · **Języki:** polski, angielski, niemiecki
+**Wersja:** 0.3.2 · **Home Assistant:** 2026.10.0 lub nowszy · **Języki:** polski, angielski, niemiecki
 
 [English version](../README.md)
 
@@ -16,6 +16,7 @@ Sterowanie zaworami za pomocą tygodniowych harmonogramów i karty dashboardu. W
 - Nakładające się harmonogramy mogą korzystać z tych samych zaworów. Zawór pozostaje otwarty, dopóki potrzebuje go choć jeden aktywny harmonogram.
 - Obsługa przedziałów przechodzących przez północ.
 - Przełącznik automatyki, ręczne sterowanie zaworami i bieżący status.
+- Usunięty zawór jest jednorazowo zamykany, a następnie zwalniany spod kontroli integracji.
 - Język interfejsu zgodny z Home Assistant. Twoje nazwy harmonogramów i zaworów pozostają bez zmian.
 
 ## Instalacja

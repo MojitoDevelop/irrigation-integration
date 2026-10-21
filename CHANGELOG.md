@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 — release removed valves
+
+- Release removed valves after confirmed closure or one bounded close attempt, persisting the cleanup budget across restarts.
+- Keep removed switches out of normal reconciliation, availability diagnostics and shutdown commands.
+- Preserve other manual valve states during catalog edits and prevent stale options forms from restoring released switches.
+
 ## 0.3.1 — reliable card loading
 
 - Register the card as a Lovelace module resource and update obsolete URLs without touching other resources.

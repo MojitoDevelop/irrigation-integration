@@ -38,6 +38,7 @@ def normalize_valves(raw: Any) -> list[dict[str, str]]:
 
 
 def merged_catalog(valves: Any, previous: Mapping[str, Any]) -> dict[str, Any]:
+    """Queue newly removed switches for bounded cleanup, retaining attempt budgets."""
     valves = normalize_valves(valves)
     ids = {v['entity'] for v in valves}
     retired = {v['entity']: v for v in previous.get('retired', []) + previous.get('valves', []) if v['entity'] not in ids}
@@ -62,17 +63,17 @@ class Plan:
     error_details: tuple[dict[str, Any], ...]
 
 
-def make_plan(states: Mapping[str, Any], valves: list[dict[str, str]], retired: list[dict[str, str]], enabled: bool) -> Plan:
-    """Read only managed schedules and explicit catalog entities; never map by order."""
+def make_plan(states: Mapping[str, Any], valves: list[dict[str, str]], retired: list[dict[str, Any]], enabled: bool) -> Plan:
+    """Plan only selected valves; retired switches have separate bounded cleanup."""
     allowed = {v['entity'] for v in valves}
-    controlled = [v['entity'] for v in valves + retired]
+    controlled = [v['entity'] for v in valves]
     requested, names, active_ids, errors = set(), [], [], []
     opened, unavailable, error_details = [], [], []
     def issue(code, name):
         error_details.append({'code': code, 'params': {'name': name}})
         templates = {'issue_valve': 'Unavailable valve: {name}', 'issue_schedule': 'Unavailable schedule: {name}', 'issue_data': 'Invalid data or removed valve in schedule: {name}'}
         errors.append(templates[code].format(name=name))
-    labels = {v['entity']: v['name'] for v in valves + retired}
+    labels = {v['entity']: v['name'] for v in valves}
     for entity_id in controlled:
         state = states.get(entity_id)
         value = state.state if state else None

@@ -15,6 +15,7 @@ from .model import IrrigationError, make_plan
 from .localization import translate
 
 _LOGGER = logging.getLogger(__name__)
+MAX_RETIREMENT_ATTEMPTS = 1
 
 
 class IrrigationController:
@@ -43,7 +44,7 @@ class IrrigationController:
 
     @property
     def controlled(self):
-        return {v['entity'] for v in self.valves + self.retired}
+        return {v['entity'] for v in self.valves}
 
     def plan(self):
         return make_plan({s.entity_id: s for s in self.hass.states.async_all()}, self.valves, self.retired, self.enabled)
@@ -129,7 +130,10 @@ class IrrigationController:
     @callback
     def _state_changed(self, event):
         entity_id = event.data['entity_id']
-        if entity_id.startswith(('schedule.irrigation_', 'schedule.nawodnienie_')) or entity_id in self.controlled:
+        retiring = {v['entity'] for v in self.retired}
+        if entity_id in retiring and self.hass.states.is_state(entity_id, 'off') and self._pending != (entity_id, 'on'):
+            self._release_retired(entity_id)
+        if entity_id.startswith(('schedule.irrigation_', 'schedule.nawodnienie_')) or entity_id in self.controlled or entity_id in retiring:
             self._changed.set()
             self.publish()
             self.request()
@@ -164,12 +168,65 @@ class IrrigationController:
     @callback
     def async_update_catalog(self):
         catalog = self.entry.options or self.entry.data
-        old = {v['entity'] for v in self.valves}
         self.valves, self.retired = catalog['valves'], catalog.get('retired', [])
-        if not self.enabled and old != {v['entity'] for v in self.valves}:
-            self.mode = 'stopping'
+        if self._failure and self._failure['entity'] not in self.controlled:
+            self._failure = None
+            self._retry_at = 0.0
         self.publish()
         self.request()
+
+    @callback
+    def _release_retired(self, entity_id, expected=None):
+        """Release from the latest options without overwriting concurrent edits."""
+        catalog = self.entry.options or self.entry.data
+        retired = catalog.get('retired', [])
+        remaining = [v for v in retired if v['entity'] != entity_id
+                     or (expected is not None and v != expected)]
+        if remaining == retired:
+            return
+        self.hass.config_entries.async_update_entry(self.entry, options={**catalog, 'retired': remaining})
+        self.async_update_catalog()
+
+    @staticmethod
+    def _retirement_attempts(valve):
+        attempts = valve.get('cleanup_attempts', 0)
+        return max(0, attempts) if type(attempts) is int else 0
+
+    @callback
+    def _prune_retired(self):
+        for valve in list(self.retired):
+            entity_id = valve['entity']
+            if self._pending == (entity_id, 'on'):
+                continue  # An old open command must settle before off can release it.
+            if self.hass.states.is_state(entity_id, 'off') or self._retirement_attempts(valve) >= MAX_RETIREMENT_ATTEMPTS:
+                self._release_retired(entity_id, expected=valve)
+
+    async def _cleanup_retired(self):
+        """Try each removed switch once, then relinquish it even if unavailable."""
+        self._prune_retired()
+        for entity_id in [v['entity'] for v in self.retired]:
+            catalog = self.entry.options or self.entry.data
+            if entity_id in {v['entity'] for v in catalog['valves']}:
+                continue  # Re-adding a valve cancels any cleanup not yet issued.
+            valve = next((v for v in catalog.get('retired', []) if v['entity'] == entity_id), None)
+            if valve is None:
+                continue
+            if self.hass.states.is_state(entity_id, 'off') or self._retirement_attempts(valve) >= MAX_RETIREMENT_ATTEMPTS:
+                self._release_retired(entity_id, expected=valve)
+                continue
+            attempted = {**valve, 'cleanup_attempts': self._retirement_attempts(valve) + 1}
+            retired = [attempted if v['entity'] == entity_id else v for v in catalog['retired']]
+            # Persist consumption before awaiting the service so a restart cannot
+            # replenish the budget and repeatedly seize the removed switch.
+            self.hass.config_entries.async_update_entry(self.entry, options={**catalog, 'retired': retired})
+            self.async_update_catalog()
+            try:
+                await self._command(entity_id, 'off', cleanup=True)
+            finally:
+                # A fresh removal after re-adding is a different cleanup request.
+                self._release_retired(entity_id, expected=attempted)
+            return True  # Always re-evaluate after awaiting an external command.
+        return False
 
     async def _wait_state(self, entity_id, expected):
         async with asyncio.timeout(5):
@@ -180,7 +237,8 @@ class IrrigationController:
                     return
                 await self._changed.wait()
 
-    async def _command(self, entity_id, expected):
+    async def _command(self, entity_id, expected, *, cleanup=False):
+        label = next((v['name'] for v in self.valves + self.retired if v['entity'] == entity_id), entity_id)
         self._pending = (entity_id, expected)
         self.publish()
         try:
@@ -190,34 +248,42 @@ class IrrigationController:
         except asyncio.CancelledError:
             raise
         except Exception as err:
-            label = next(v['name'] for v in self.valves + self.retired if v['entity'] == entity_id)
             code = 'issue_open' if expected == 'on' else 'issue_close'
             message = translate(self.hass, code, {'name': label})
-            self._failure = {'entity': entity_id, 'state': expected, 'code': code, 'name': label}
-            self._retry_at = monotonic() + 5
-            _LOGGER.warning('%s (%s)', message, type(err).__name__)
+            if cleanup:
+                _LOGGER.warning('Could not confirm closure of removed valve %s; releasing control after one attempt (%s)', label, type(err).__name__)
+            else:
+                self._failure = {'entity': entity_id, 'state': expected, 'code': code, 'name': label}
+                self._retry_at = monotonic() + 5
+                _LOGGER.warning('%s (%s)', message, type(err).__name__)
             return False
         finally:
             self._pending = None
             self.publish()
-        self._failure = None
-        self._retry_at = 0.0
+        if not cleanup:
+            self._failure = None
+            self._retry_at = 0.0
         return True
 
     async def _reconcile(self):
         try:
             for _ in range(max(8, len(self.controlled) * 2 + 4)):
                 self._changed.clear()
+                self._prune_retired()
+                if self._failure and self._failure['entity'] not in self.controlled:
+                    self._failure = None
+                    self._retry_at = 0.0
                 plan = self.plan()
                 if self.enabled:
                     self.mode = 'automatic'
-                elif self.mode == 'manual' and any(not self.hass.states.is_state(v['entity'], 'off') for v in self.retired):
-                    self.mode = 'stopping'
                 # A recovered state removes a diagnostic without another service call.
                 if self._failure and self.hass.states.is_state(self._failure['entity'], self._failure['state']):
                     self._failure = None
                     self._retry_at = 0.0
                 if self.mode == 'manual' and not self.enabled:
+                    attempted_cleanup = await self._cleanup_retired()
+                    if attempted_cleanup or self._changed.is_set():
+                        continue
                     self.publish()
                     return
                 desired = set(plan.requested) if self.enabled else set()
@@ -235,9 +301,15 @@ class IrrigationController:
                         elif current_target == 'on' and id_ not in open_:
                             open_.insert(0, id_)
                 if self._retry_at > monotonic():
+                    attempted_cleanup = await self._cleanup_retired()
+                    if attempted_cleanup or self._changed.is_set():
+                        continue
                     self.publish()
                     return
                 if not close and not open_:
+                    attempted_cleanup = await self._cleanup_retired()
+                    if attempted_cleanup or self._changed.is_set():
+                        continue
                     if not self.enabled and not plan.unavailable and not self._failure:
                         self.mode = 'manual'
                     self.publish()

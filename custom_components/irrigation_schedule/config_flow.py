@@ -95,7 +95,7 @@ class IrrigationOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             try:
                 valves = [{'entity': v['entity'], 'name': user_input[v['entity']]} for v in self._valves]
-                return self.async_create_entry(title='', data=merged_catalog(valves, self._previous))
+                return self.async_create_entry(title='', data=merged_catalog(valves, self.config_entry.options or self.config_entry.data))
             except (ValueError, KeyError):
                 errors['base'] = 'invalid_names'
         return self.async_show_form(step_id='names', data_schema=name_schema(self._valves), errors=errors)

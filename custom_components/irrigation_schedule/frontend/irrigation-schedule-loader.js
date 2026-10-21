@@ -1,7 +1,7 @@
 // The bootstrap can be loaded by frontend extras, Lovelace or a manual resource.
 (() => {
   const tag = 'irrigation-schedule-integration-card';
-  const bundle = "/irrigation_schedule/0.3.1/irrigation-schedule-card.js";
+  const bundle = "/irrigation_schedule/0.3.2/irrigation-schedule-card.js";
   const key = Symbol.for(`irrigation_schedule.card_loader:${bundle}`);
   if (globalThis[key]) { globalThis[key].start(); return; }
   let pending = null, requests = 0, complete = false;
