@@ -1,11 +1,11 @@
-# Nawodnienie 0.3.2 — instalacja poprawionej wersji
+# Nawodnienie 0.3.3 — instalacja poprawionej wersji
 
 Ta paczka zawiera **integrację oraz jej nową kartę**. Sam wcześniejszy folder z `www` nie zawiera tej integracji i nie rejestruje nowego typu karty.
 
-1. Skopiuj cały folder `custom_components/irrigation_schedule` do **`/config/custom_components/irrigation_schedule`**, zastępując poprzednie pliki integracji. Nie kopiuj go do `www`. Nie usuwaj konfiguracji w `.storage` ani zapisanych pomocników Schedule.
+1. Otwórz **HACS**, wyszukaj **Irrigation** i pobierz integrację albo użyj [przycisku HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=irrigation-integration&category=integration).
 2. Wyłącz wcześniejszy sterownik zaworów: flow Node-RED lub poprzedni pakiet YAML, jeśli jeszcze działa. Zachowaj harmonogramy.
-3. **Uruchom ponownie Home Assistant**, aby serwer załadował nowy Python i adres JS z wersją `0.3.2`.
-4. W **Ustawienia → Urządzenia i usługi** upewnij się, że „Nawodnienie” jest uruchomione. Jeśli nie było dodane, wybierz **Dodaj integrację → Nawodnienie**, wskaż zawory i ich nazwy. W informacjach integracji powinna być wersja **0.3.2**.
+3. **Uruchom ponownie Home Assistant**, aby serwer załadował nowy Python i adres JS z wersją `0.3.3`.
+4. W **Ustawienia → Urządzenia i usługi** upewnij się, że „Nawodnienie” jest uruchomione. Jeśli nie było dodane, wybierz **Dodaj integrację → Nawodnienie**, wskaż zawory i ich nazwy. W informacjach integracji powinna być wersja **0.3.3**.
 5. Otwórz ponownie dashboard albo aplikację HA. Integracja sama aktualizuje swój zasób Lovelace.
 6. Zastąp YAML głównej karty:
 
@@ -16,16 +16,26 @@ Ta paczka zawiera **integrację oraz jej nową kartę**. Sam wcześniejszy folde
 
 Stary typ **`custom:irrigation-schedule-card`** uruchamia wcześniejszą kartę, ze starym zachowaniem nagłówka i przełącznika. Nowa karta odczytuje rzeczywisty identyfikator przełącznika z integracji.
 
+## Alternatywna instalacja
+
+Jeśli wyszukiwanie HACS nie pokazuje Irrigation, dodaj `https://github.com/MojitoDevelop/irrigation-integration` jako repozytorium niestandardowe w kategorii **Integration** i pobierz integrację.
+
+Awaryjnie pobierz i rozpakuj najnowsze wydanie, a następnie skopiuj cały folder `custom_components/irrigation_schedule` do `/config/custom_components/irrigation_schedule`. Uruchom ponownie HA i dodaj integrację. Zachowaj konfigurację oraz zapisane pomocniki Schedule.
+
+## Brak ikony w sklepie HACS
+
+Integracja zawiera ikony jasnego i ciemnego motywu w `custom_components/irrigation_schedule/brand/`. Niektóre wersje HACS wyświetlają ikonę zastępczą mimo poprawnych plików. Maintainer wskazał poprawkę w Marketplace dla Home Assistant 2026.11; zobacz [zgłoszenie HACS](https://github.com/hacs/integration/issues/5171#issuecomment-6222990878). Zmiana plików ikon w integracji nie rozwiązuje tego problemu wyświetlania po stronie HACS.
+
 ## Gdy nadal pojawia się „Custom element doesn't exist”
 
 Karta jest normalnie rejestrowana automatycznie. Jeśli po powyższych krokach jej element nadal nie jest dostępny:
 
-1. Otwórz na swoim adresie HA ścieżkę **`/irrigation_schedule/irrigation-schedule-card.js?v=0.3.2`**. Powinien zostać zwrócony moduł ładujący kartę ze ścieżki `/irrigation_schedule/0.3.2/irrigation-schedule-card.js`.
+1. Otwórz na swoim adresie HA ścieżkę **`/irrigation_schedule/irrigation-schedule-card.js?v=0.3.3`**. Powinien zostać zwrócony moduł ładujący kartę ze ścieżki `/irrigation_schedule/0.3.3/irrigation-schedule-card.js`.
 2. Jeśli otrzymujesz **404**, nie został załadowany backend nowej integracji. Sprawdź folder instalacji, restart, stan integracji oraz logi `custom_components.irrigation_schedule`. Dodanie zasobu nie naprawi brakującego backendu.
 3. Jeśli plik JS działa, dodaj w **zasobach dashboardu Lovelace** (nie w YAML karty) zasób:
 
    ```yaml
-   url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.2
+   url: /irrigation_schedule/irrigation-schedule-card.js?v=0.3.3
    type: module
    ```
 
@@ -33,7 +43,7 @@ Karta jest normalnie rejestrowana automatycznie. Jeśli po powyższych krokach j
 
 Jeżeli starsza karta nie jest używana na żadnym dashboardzie, usuń jej stary zasób z `/local/...`, aby nie ładować go dalej. Nie trzeba usuwać zapisanych harmonogramów.
 
-## Aktualizacja do 0.3.2
+## Aktualizacja do 0.3.3
 
 Nowy moduł ponawia nieudane pobrania karty i próbuje ponownie po odzyskaniu połączenia lub powrocie do aplikacji. W trybie zasobów Lovelace zapisanych przez UI adres jest aktualizowany automatycznie, a duplikaty zasobu tej integracji są usuwane. Konfiguracja zasobów YAML nie jest zmieniana; karta jest dodatkowo rejestrowana przez frontend HA.
 
@@ -64,4 +74,4 @@ Jeśli przycisku nie ma, spróbuj w ustawieniach Androida: **Aplikacje → Home 
 
 **Chrome na Androidzie:** wybierz **⋮ → Usuń dane przeglądania → Więcej opcji**, zakres **Od początku / Cały okres** i zaznacz tylko **Obrazy i pliki zapisane w pamięci podręcznej**. Odznacz historię, cookies i pozostałe kategorie. Usuń dane i otwórz dashboard ponownie. [Instrukcja Google](https://support.google.com/chrome/answer/2392709?co=GENIE.Platform%3DAndroid&hl=pl).
 
-Aplikacja HA i Chrome mają osobną pamięć podręczną: wyczyszczenie jednej nie odświeża drugiej. Jeżeli karta nadal się nie wczytuje na telefonie, sprawdź opisany wyżej zasób JS pod adresem HA używanym **na telefonie**. W ręcznym zasobie ustaw bieżącą wersję `?v=0.3.2`.
+Aplikacja HA i Chrome mają osobną pamięć podręczną: wyczyszczenie jednej nie odświeża drugiej. Jeżeli karta nadal się nie wczytuje na telefonie, sprawdź opisany wyżej zasób JS pod adresem HA używanym **na telefonie**. W ręcznym zasobie ustaw bieżącą wersję `?v=0.3.3`.

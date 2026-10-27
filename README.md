@@ -2,7 +2,7 @@
 
 Control irrigation valves with weekly schedules and a dashboard card. Everything runs in Home Assistant, even when the dashboard or app is closed. No Node-RED required.
 
-**Version:** 0.3.2 · **Home Assistant:** 2026.10.0 or newer · **Languages:** English, Polish, German
+**Version:** 0.3.3 · **Home Assistant:** 2026.10.0 or newer · **Languages:** English, Polish, German
 
 [Polska wersja](docs/README.pl.md)
 
@@ -23,11 +23,24 @@ Control irrigation valves with weekly schedules and a dashboard card. Everything
 
 ## Installation
 
-**HACS:** add `https://github.com/MojitoDevelop/irrigation-integration` as a custom repository with category **Integration**, then install **Irrigation**.
+[![Open Irrigation in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=irrigation-integration&category=integration)
 
-**Manual:** copy `custom_components/irrigation_schedule` to `/config/custom_components/irrigation_schedule`.
+1. Open **HACS**, search for **Irrigation** and download it, or use the button above.
+2. Restart Home Assistant.
+3. Go to **Settings → Devices & services → Add integration → Irrigation**.
 
-Restart Home Assistant, then go to **Settings → Devices & services → Add integration → Irrigation**. Select your valve `switch` entities and enter their display names. No valves are selected by default. You can change the valve list later in the integration options.
+Select your valve `switch` entities and enter their display names. No valves are selected by default. You can change the valve list later in the integration options.
+
+<details>
+<summary>Alternative installation methods</summary>
+
+**Custom repository (fallback):** if Irrigation does not appear in HACS search, add `https://github.com/MojitoDevelop/irrigation-integration` as a custom repository with category **Integration**, then download it.
+
+**Manual installation (backup):** download the latest [release](https://github.com/MojitoDevelop/irrigation-integration/releases/latest), extract it and copy `custom_components/irrigation_schedule` to `/config/custom_components/irrigation_schedule`.
+
+After either method, restart Home Assistant and add the integration as described above.
+
+</details>
 
 ## Dashboard card
 
@@ -59,6 +72,6 @@ valves:
 | `switch.irrigation_automation` | Enable or disable automatic irrigation |
 | `sensor.irrigation_status` | Current activity and errors |
 
-Schedules use native HA Schedule helpers. Existing entity IDs and schedules are preserved during updates. Replace the integration files, restart HA and reopen the dashboard. The integration updates its Lovelace resource automatically. Disable any previous controller using the same valves.
+Schedules use native HA Schedule helpers. Existing entity IDs and schedules are preserved during updates. Update through HACS, restart HA and reopen the dashboard. The integration updates its Lovelace resource automatically. Disable any previous controller using the same valves.
 
 [Installation and troubleshooting](docs/INSTALL.md) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/MojitoDevelop/irrigation-integration/issues) · [MIT license](LICENSE)

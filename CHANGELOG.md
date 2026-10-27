@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3 — HACS catalog installation
+
+- Lead English and Polish installation instructions with HACS catalog search and a My Home Assistant button.
+- Keep custom repositories and manual copying as fallback installation methods.
+- Document the upstream HACS issue affecting valid local brand icons. Irrigation control is unchanged.
+
 ## 0.3.2 — release removed valves
 
 - Release removed valves after confirmed closure or one bounded close attempt, persisting the cleanup budget across restarts.

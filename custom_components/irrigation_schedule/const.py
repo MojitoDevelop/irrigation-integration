@@ -1,6 +1,6 @@
 """Constants for the irrigation controller."""
 DOMAIN = 'irrigation_schedule'
-VERSION = '0.3.2'
+VERSION = '0.3.3'
 PLATFORMS = ['switch', 'sensor']
 SCHEDULE_PREFIX = 'schedule.irrigation_'
 LEGACY_SCHEDULE_PREFIX = 'schedule.nawodnienie_'

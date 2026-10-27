@@ -2,7 +2,7 @@
 
 Sterowanie zaworami za pomocą tygodniowych harmonogramów i karty dashboardu. Wszystko działa w Home Assistant, również przy zamkniętej aplikacji i dashboardzie. Node-RED nie jest potrzebny.
 
-**Wersja:** 0.3.2 · **Home Assistant:** 2026.10.0 lub nowszy · **Języki:** polski, angielski, niemiecki
+**Wersja:** 0.3.3 · **Home Assistant:** 2026.10.0 lub nowszy · **Języki:** polski, angielski, niemiecki
 
 [English version](../README.md)
 
@@ -21,11 +21,24 @@ Sterowanie zaworami za pomocą tygodniowych harmonogramów i karty dashboardu. W
 
 ## Instalacja
 
-**HACS:** dodaj `https://github.com/MojitoDevelop/irrigation-integration` jako repozytorium niestandardowe w kategorii **Integration** i zainstaluj **Irrigation**.
+[![Otwórz Nawodnienie w HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=irrigation-integration&category=integration)
 
-**Ręcznie:** skopiuj `custom_components/irrigation_schedule` do `/config/custom_components/irrigation_schedule`.
+1. Otwórz **HACS**, wyszukaj **Irrigation** i pobierz integrację lub użyj przycisku powyżej.
+2. Uruchom ponownie Home Assistant.
+3. Wybierz **Ustawienia → Urządzenia i usługi → Dodaj integrację → Nawodnienie**.
 
-Uruchom ponownie Home Assistant i wybierz **Ustawienia → Urządzenia i usługi → Dodaj integrację → Nawodnienie**. Wskaż encje `switch` swoich zaworów i ustaw ich nazwy. Domyślnie żaden zawór nie jest wybrany. Listę możesz później zmienić w opcjach integracji.
+Wskaż encje `switch` swoich zaworów i ustaw ich nazwy. Domyślnie żaden zawór nie jest wybrany. Listę możesz później zmienić w opcjach integracji.
+
+<details>
+<summary>Alternatywne metody instalacji</summary>
+
+**Repozytorium niestandardowe (zapasowo):** jeśli Irrigation nie pojawia się w wyszukiwaniu HACS, dodaj `https://github.com/MojitoDevelop/irrigation-integration` jako repozytorium niestandardowe w kategorii **Integration** i pobierz integrację.
+
+**Instalacja ręczna (awaryjnie):** pobierz i rozpakuj najnowsze [wydanie](https://github.com/MojitoDevelop/irrigation-integration/releases/latest), a następnie skopiuj `custom_components/irrigation_schedule` do `/config/custom_components/irrigation_schedule`.
+
+Po obu metodach uruchom ponownie Home Assistant i dodaj integrację zgodnie z instrukcją powyżej.
+
+</details>
 
 ## Karta dashboardu
 
@@ -57,6 +70,6 @@ valves:
 | `switch.irrigation_automation` | Włączenie i wyłączenie automatyki |
 | `sensor.irrigation_status` | Aktualne działanie i błędy |
 
-Harmonogramy korzystają z natywnych pomocników Schedule. Aktualizacja zachowuje istniejące identyfikatory encji i harmonogramy. Podmień pliki integracji, uruchom ponownie HA i otwórz ponownie dashboard. Integracja automatycznie aktualizuje swój zasób Lovelace. Wyłącz wcześniejszy sterownik tych samych zaworów.
+Harmonogramy korzystają z natywnych pomocników Schedule. Aktualizacja zachowuje istniejące identyfikatory encji i harmonogramy. Zaktualizuj integrację przez HACS, uruchom ponownie HA i otwórz ponownie dashboard. Integracja automatycznie aktualizuje swój zasób Lovelace. Wyłącz wcześniejszy sterownik tych samych zaworów.
 
 [Instalacja i rozwiązywanie problemów](INSTALL.pl.md) · [Historia zmian](../CHANGELOG.md) · [Zgłoś problem](https://github.com/MojitoDevelop/irrigation-integration/issues) · [Licencja MIT](../LICENSE)
